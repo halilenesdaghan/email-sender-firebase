@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  email-sender:
+    build: .
+    container_name: firebase-email-sender
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+    command: python -m src.main
