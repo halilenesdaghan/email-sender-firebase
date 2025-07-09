@@ -44,68 +44,37 @@ def print_info(message: str):
 def send_email_interactive():
     """İnteraktif modda e-posta gönder"""
     print_info("E-posta adresi girin (çıkmak için 'q' yazın):")
-    
     while True:
-        try:
-            # Kullanıcıdan e-posta al
-            email_input = input(f"{Fore.CYAN}📮 E-posta adresi: {Style.RESET_ALL}").strip()
-            
-            # Çıkış kontrolü
-            if email_input.lower() in ['q', 'quit', 'exit']:
-                print_info("Uygulama kapatılıyor...")
-                break
-            
-            # E-posta doğrulama
-            is_valid, result = validate_email_input(email_input)
-            
-            if not is_valid:
-                print_error(result)
-                continue
-            
-            # Temizlenmiş e-posta adresi
-            recipient = result
-            
-            print_info(f"E-posta gönderiliyor: {recipient}")
-            
-            # E-postayı gönder
-            if email_service.send_email(recipient):
-                print_success(f"E-posta başarıyla gönderildi: {recipient}")
-                print_info(f"Konu: {Fore.WHITE}Başlık: Merhaba Dünya{Style.RESET_ALL}")
-                print_info(f"İçerik: {Fore.WHITE}Merhaba Dünya!{Style.RESET_ALL}")
-            else:
-                print_error("E-posta gönderilemedi! Lütfen logları kontrol edin.")
-            
-            print("-" * 50)
-            
-        except KeyboardInterrupt:
-            print("\n")
-            print_info("Uygulama kullanıcı tarafından durduruldu.")
+        email_address = input("📮 E-posta adresi: ").strip()
+        if email_address.lower() == 'q':
+            print_info("Uygulamadan çıkılıyor.")
             break
-        except Exception as e:
-            logger.error(f"Beklenmeyen hata: {str(e)}")
-            print_error(f"Beklenmeyen hata: {str(e)}")
+        if validate_email_input(email_address):
+            print_info(f"E-posta görevi kuyruğa ekleniyor: {email_address}")
+            success = email_service.send_email(email_address, "Test E-postası", "Bu bir test e-postasıdır.")
+            if success:
+                # Log mesajını ve durumunu güncelle
+                firebase_client.log_email_activity(email_address, 'queued')
+                print_success("E-posta başarıyla kuyruğa eklendi!")
+            else:
+                # Log mesajını ve durumunu güncelle
+                firebase_client.log_email_activity(email_address, 'queue_failed')
+                print_error("E-posta kuyruğa eklenemedi! Lütfen logları kontrol edin.")
+        print("-" * 50)
 
-def send_email_direct(recipient: str):
+def send_email_direct(email: str):
     """Doğrudan e-posta gönder"""
-    # E-posta doğrulama
-    is_valid, result = validate_email_input(recipient)
-    
-    if not is_valid:
-        print_error(result)
-        return False
-    
-    # Temizlenmiş e-posta adresi
-    recipient = result
-    
-    print_info(f"E-posta gönderiliyor: {recipient}")
-    
-    # E-postayı gönder
-    if email_service.send_email(recipient):
-        print_success(f"E-posta başarıyla gönderildi: {recipient}")
-        return True
-    else:
-        print_error("E-posta gönderilemedi! Lütfen logları kontrol edin.")
-        return False
+    if validate_email_input(email):
+        print_info(f"E-posta görevi kuyruğa ekleniyor: {email}")
+        success = email_service.send_email(email, "Test E-postası", "Bu bir test e-postasıdır.")
+        if success:
+            # Log mesajını ve durumunu güncelle
+            firebase_client.log_email_activity(email, 'queued')
+            print_success("E-posta başarıyla kuyruğa eklendi!")
+        else:
+            # Log mesajını ve durumunu güncelle
+            firebase_client.log_email_activity(email, 'queue_failed')
+            print_error("E-posta kuyruğa eklenemedi! Lütfen logları kontrol edin.")
 
 def show_history(limit: int = 10):
     """E-posta gönderim geçmişini göster"""
