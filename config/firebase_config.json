@@ -1,21 +1,13 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBvatfBkcvYfANWLid7gYsnFaHhVLbhRM0",
-  authDomain: "merhaba-dunya-7db22.firebaseapp.com",
-  projectId: "merhaba-dunya-7db22",
-  storageBucket: "merhaba-dunya-7db22.firebasestorage.app",
-  messagingSenderId: "331598774079",
-  appId: "1:331598774079:web:9ea7dda5e77b81e9de9d8a",
-  measurementId: "G-X3PMXRR7VJ"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+{
+  "type": "service_account",
+  "project_id": "merhaba-dunya-7db22",
+  "private_key_id": "18e7413d27c18acf2e34c078fe325673f18f435d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDn8wI69PIxv+X9\nKHX/OY7gnm1/k5V5c2sG9bPVX27eUqTP43wwaIkJ56xWxCy1i8P31tjonXCxZmXb\nnGM6vblvmbFlxkwiNFNAQkA727+i1/sR+RGM8y1CNvz7+8H+IMG10XmUpzcjSL+b\nmGDR6MpvgA+OUueNwZDAVOTMcCGJ+u2ftX9nueypSRFmPxlzuyAhhM1gbahQg4i3\n9VE/k7DFD600IMiVHl0c7Sxk3TBL/UfeOJNrqd7675zSm67wsxjq3apObemdHZGM\nwuqSSBXxlCduzlzImeWKWdU5A9MfZKDTmGLtKaksOcbLAm679QGPT8y63iCoRJGc\nEolypb5nAgMBAAECggEAYZBLg14N09RKmspem7zrttqc51k+OehNAA/wlVM/kL+F\neLZQwhHudp6e1J5OygxgoUqbUXkL8mrGdHIbIRW1vtYQkuUumAKXdAOJ/kOoH4im\noIA6HCYbhusXTayvhEPmByL194vAexR6GConq5O2NuFQacbAhFWDnAr5dG7EBMOd\nGEJLNjFnZJzvc9VrjAcYwulZsrigsd1Yc1XOprRck6mTkqkAtOhgB3906LSlvWap\nNapxO5o0wtOmutc0bs3F3DhUyU7/Kkp0b4lOIyn+lGNQdj3+/B64/Ss85sgFeObW\n6I9hexoe9AKO8gz7SprnsDhHZPhHoLUy7hgGnDwHrQKBgQD1jc0H+P/1qqRaqcVy\nTFee770l2W97i4QOzrGqkEVnVUqBBggLjHfJIfOmyGm5v0zPvQLQDQmlNuQK0Q/B\nJa0o4Yv4lMFmw7pNKPNm/4UJGn8N0Is1cJN6Mi6sk/+gVTKJS5BRnykIcH7CQRP/\n5IrWrZ55k9dTA9gs9O/lXjhR/QKBgQDx0Qvutc4k1Ve7TYF5MK265GlzJAgOf/OS\njTVGiRdYMo5RorCLKleDIYYNgp6mrVZg611cwH0vDalBwXNrPdFpMc1rhYzNWmkW\nd7IY0H5b+2FV379WS8YqATFIW7e8Ctd4Vg/lVlh12K+n7BPt4b6IqoonGVdSeBhj\nv9ViLx7dMwKBgQDcDZ6fNXLUSn8NTLVID8g6A6hjQe9ZLRdEWdD4BGBeER46cBhH\nmTNDySxb26B7uEbyp/TcU8LAD2fflajjs4rxZucT9uM239KWEUvHktc66EbSL4CB\nfIh9anlPaTYdDhzC0zfbHaIdEQtXtBBjMwGFD4REecvudjSFXV+bEouwVQKBgFC4\nnMgZrm/DO98Nd1vyMPxDRSQncf0NH0zbkF40YzOQ5MtBiLdb8gyXAz29TaKMGFqQ\nFwFgTCmJ4OdPYWz6HM6FznHHCgJ+3LegSzZXWubvmkVlRGTVNJhO/5mM7F98KwND\nj1jaIvtr0u82MkzlX4oVi7qTjf+8kT+zCNMWsbHbAoGAb3aTMRaa9AQHpQuWxhav\nK9pLqH4wL2waAUUEGrH/BKA7MsWZDDnsNPjxjpYPTGiOv/4NVOaJsVZe4xEBCXyu\nxMVu0cFW6i+iN8RqFmnDTZFksjYJTCWKYBHVAiUIM+1iqIiC92YEAOen9cU6Vvl/\nn0OJRTTPMg/tvZLFY3qib8A=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@merhaba-dunya-7db22.iam.gserviceaccount.com",
+  "client_id": "102832957008265671937",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40merhaba-dunya-7db22.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
