@@ -1,4 +1,5 @@
 import re
+from typing import Tuple
 from email_validator import validate_email, EmailNotValidError
 from utils.logger import setup_logger
 
@@ -36,7 +37,7 @@ def sanitize_email(email: str) -> str:
     """
     return email.strip().lower()
 
-def validate_email_input(email: str) -> tuple[bool, str]:
+def validate_email_input(email: str) -> Tuple[bool, str]:  # Değişiklik burada
     """
     E-posta girişini doğrular ve temizler
     
@@ -44,7 +45,7 @@ def validate_email_input(email: str) -> tuple[bool, str]:
         email (str): Kullanıcıdan alınan e-posta adresi
         
     Returns:
-        tuple[bool, str]: (Geçerli mi, Temizlenmiş e-posta veya hata mesajı)
+        Tuple[bool, str]: (Geçerli mi, Temizlenmiş e-posta veya hata mesajı)
     """
     if not email:
         return False, "E-posta adresi boş olamaz!"

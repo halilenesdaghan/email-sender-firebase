@@ -32,6 +32,7 @@ class FirebaseClient:
         except Exception as e:
             logger.error(f"Firebase başlatma hatası: {str(e)}")
             raise
+    
     def add_email_to_queue(self, email_data: dict):
         """
         E-posta gönderme görevini Firestore'daki 'emails' koleksiyonuna ekler.
@@ -45,7 +46,7 @@ class FirebaseClient:
         
         try:
             # 'emails' koleksiyonuna yeni bir doküman olarak ekle
-            self.db.collection('emails').add(email_data)
+            self._db.collection('emails').add(email_data)  # DÜZELTME: self.db yerine self._db
             logger.info(f"E-posta görevi '{email_data['to']}' için Firestore'a eklendi.")
         except Exception as e:
             logger.error(f"E-posta görevi Firestore'a eklenirken hata: {str(e)}")

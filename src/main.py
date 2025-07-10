@@ -62,6 +62,35 @@ def send_email_interactive():
                 print_error("E-posta kuyruğa eklenemedi! Lütfen logları kontrol edin.")
         print("-" * 50)
 
+def check_email_queue():
+    """Firestore'daki emails koleksiyonunu kontrol et"""
+    print_info("Firestore'daki e-posta kuyruğu kontrol ediliyor...")
+    
+    try:
+        # firebase_client'a bu metodu ekleyelim
+        emails = firebase_client._db.collection('emails').limit(5).stream()
+        
+        email_count = 0
+        for doc in emails:
+            email_count += 1
+            data = doc.to_dict()
+            print(f"\n📧 Doküman ID: {doc.id}")
+            print(f"   To: {data.get('to', 'N/A')}")
+            print(f"   State: {data.get('delivery', {}).get('state', 'N/A')}")
+            print(f"   Error: {data.get('delivery', {}).get('error', 'None')}")
+            
+            # Extension tarafından eklenen alanları kontrol et
+            if 'delivery' in data and 'info' in data['delivery']:
+                print(f"   Info: {data['delivery']['info']}")
+        
+        if email_count == 0:
+            print_info("Kuyrukta bekleyen e-posta bulunamadı.")
+        else:
+            print_info(f"Toplam {email_count} e-posta bulundu.")
+            
+    except Exception as e:
+        print_error(f"Kuyruk kontrol hatası: {str(e)}")
+
 def send_email_direct(email: str):
     """Doğrudan e-posta gönder"""
     if validate_email_input(email):
