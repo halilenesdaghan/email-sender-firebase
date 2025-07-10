@@ -2,12 +2,12 @@
 import argparse
 from colorama import Fore, Style, init
 from src.firebase_client import FirebaseClient
-from utils.validators import validate_email_address
+from utils.validators import is_valid_email
 from utils.logger import setup_logger
 
 # Colorama'yı ve Logger'ı başlat
 init(autoreset=True)
-logger = setup_logger()
+logger = setup_logger(__name__)
 
 def main():
     """
@@ -26,7 +26,7 @@ def main():
     args = parser.parse_args()
     recipient_email = args.recipient
 
-    if not validate_email_address(recipient_email):
+    if not is_valid_email(recipient_email):
         logger.error(f"Geçersiz e-posta adresi: {recipient_email}")
         print(f"{Fore.RED}Hata: Girdiğiniz e-posta adresi geçersiz.{Style.RESET_ALL}")
         return
