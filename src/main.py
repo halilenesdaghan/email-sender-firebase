@@ -49,43 +49,69 @@ def send_email_interactive():
         if email_address.lower() == 'q':
             print_info("Uygulamadan çıkılıyor.")
             break
-        if validate_email_input(email_address):
-            print_info(f"E-posta görevi kuyruğa ekleniyor: {email_address}")
-            success = email_service.send_email(email_address, "Test E-postası", "Bu bir test e-postasıdır.")
+        result = validate_email_input(email_address)
+        if result[0]:  # Geçerli e-posta
+            valid_email = result[1]
+            print_info(f"E-posta görevi kuyruğa ekleniyor: {valid_email}")
+            success = email_service.send_email(valid_email, "Test E-postası", "Bu bir test e-postasıdır.")
             if success:
                 # Log mesajını ve durumunu güncelle
-                firebase_client.log_email_activity(email_address, 'queued')
+                firebase_client.log_email_activity(valid_email, 'queued')
                 print_success("E-posta başarıyla kuyruğa eklendi!")
             else:
                 # Log mesajını ve durumunu güncelle
-                firebase_client.log_email_activity(email_address, 'queue_failed')
+                firebase_client.log_email_activity(valid_email, 'queue_failed')
                 print_error("E-posta kuyruğa eklenemedi! Lütfen logları kontrol edin.")
+        else:
+            print_error(result[1])  # Hata mesajı
         print("-" * 50)
 
 def check_email_queue():
-    """Firestore'daki emails koleksiyonunu kontrol et"""
+    """Firestore'daki emails koleksiyonunu detaylı kontrol et"""
     print_info("Firestore'daki e-posta kuyruğu kontrol ediliyor...")
     
     try:
-        # firebase_client'a bu metodu ekleyelim
-        emails = firebase_client._db.collection('emails').limit(5).stream()
+        emails = firebase_client._db.collection('emails').stream()
         
         email_count = 0
         for doc in emails:
             email_count += 1
             data = doc.to_dict()
-            print(f"\n📧 Doküman ID: {doc.id}")
-            print(f"   To: {data.get('to', 'N/A')}")
-            print(f"   State: {data.get('delivery', {}).get('state', 'N/A')}")
-            print(f"   Error: {data.get('delivery', {}).get('error', 'None')}")
+            print(f"\n{'='*60}")
+            print(f"📧 Doküman ID: {doc.id}")
+            print(f"   Alıcı: {data.get('to', 'N/A')}")
+            print(f"   Gönderen: {data.get('from', 'N/A')}")
             
-            # Extension tarafından eklenen alanları kontrol et
-            if 'delivery' in data and 'info' in data['delivery']:
-                print(f"   Info: {data['delivery']['info']}")
+            # Message içeriği
+            message = data.get('message', {})
+            print(f"   Konu: {message.get('subject', 'N/A')}")
+            print(f"   Metin: {message.get('text', 'N/A')[:50]}...")  # İlk 50 karakter
+            
+            # Delivery durumu
+            delivery = data.get('delivery', {})
+            state = delivery.get('state', 'UNKNOWN')
+            
+            if state == 'SUCCESS':
+                print(f"   ✅ Durum: {Fore.GREEN}BAŞARILI{Style.RESET_ALL}")
+            elif state == 'ERROR':
+                print(f"   ❌ Durum: {Fore.RED}HATA{Style.RESET_ALL}")
+                print(f"   Hata: {delivery.get('error', 'N/A')}")
+            elif state == 'PENDING':
+                print(f"   ⏳ Durum: {Fore.YELLOW}BEKLİYOR{Style.RESET_ALL}")
+            else:
+                print(f"   ❓ Durum: {state}")
+            
+            # Extension tarafından eklenen bilgiler
+            if 'info' in delivery:
+                print(f"   📝 Bilgi: {delivery['info']}")
+            
+            # Dokümanı silme seçeneği
+            print(f"   🗑️  Silmek için ID: {doc.id}")
         
         if email_count == 0:
             print_info("Kuyrukta bekleyen e-posta bulunamadı.")
         else:
+            print(f"\n{'='*60}")
             print_info(f"Toplam {email_count} e-posta bulundu.")
             
     except Exception as e:
@@ -93,17 +119,21 @@ def check_email_queue():
 
 def send_email_direct(email: str):
     """Doğrudan e-posta gönder"""
-    if validate_email_input(email):
-        print_info(f"E-posta görevi kuyruğa ekleniyor: {email}")
-        success = email_service.send_email(email, "Test E-postası", "Bu bir test e-postasıdır.")
+    result = validate_email_input(email)
+    if result[0]:  # Geçerli e-posta
+        valid_email = result[1]
+        print_info(f"E-posta görevi kuyruğa ekleniyor: {valid_email}")
+        success = email_service.send_email(valid_email, "Test E-postası", "Bu bir test e-postasıdır.")
         if success:
             # Log mesajını ve durumunu güncelle
-            firebase_client.log_email_activity(email, 'queued')
+            firebase_client.log_email_activity(valid_email, 'queued')
             print_success("E-posta başarıyla kuyruğa eklendi!")
         else:
             # Log mesajını ve durumunu güncelle
-            firebase_client.log_email_activity(email, 'queue_failed')
+            firebase_client.log_email_activity(valid_email, 'queue_failed')
             print_error("E-posta kuyruğa eklenemedi! Lütfen logları kontrol edin.")
+    else:
+        print_error(result[1])  # Hata mesajı
 
 def show_history(limit: int = 10):
     """E-posta gönderim geçmişini göster"""
@@ -141,6 +171,12 @@ def main():
     )
     
     parser.add_argument(
+        '-c', '--check-queue',
+        action='store_true',
+        help='E-posta kuyruğunu kontrol et'
+    )
+    
+    parser.add_argument(
         '-l', '--limit',
         type=int,
         default=10,
@@ -159,7 +195,9 @@ def main():
         print_success("Firebase bağlantısı kuruldu!")
         
         # Komut satırı argümanlarına göre işlem yap
-        if args.history:
+        if args.check_queue:
+            check_email_queue()
+        elif args.history:
             show_history(args.limit)
         elif args.email:
             send_email_direct(args.email)
