@@ -9,6 +9,7 @@ from utils.logger import setup_logger
 init(autoreset=True)
 logger = setup_logger(__name__)
 
+
 def main():
     """
     Komut satırından e-posta alıcısını alıp Firestore'a görev ekleyen ana fonksiyon.
@@ -22,7 +23,7 @@ def main():
         required=True,
         help="E-postanın gönderileceği alıcı adresi.",
     )
-    
+
     args = parser.parse_args()
     recipient_email = args.recipient
 
@@ -32,27 +33,32 @@ def main():
         return
 
     try:
-        logger.info(f"'{recipient_email}' adresine e-posta göndermek için görev oluşturuluyor...")
-        
+        logger.info(
+            f"'{recipient_email}' adresine e-posta göndermek için görev oluşturuluyor..."
+        )
+
         # Firebase istemcisini oluştur
         firebase_client = FirebaseClient()
-        
+
         # Gönderilecek e-posta içeriği
         subject = "Başlık: Merhaba Dünya"
         body = "Merhaba Dünya!"
-        
+
         # Görevi Firestore'a ekle
         task_id = firebase_client.add_email_task(recipient_email, subject, body)
-        
+
         if task_id:
             success_message = f"Görev başarıyla oluşturuldu. Takip ID: {task_id}"
             logger.info(success_message)
             print(f"{Fore.GREEN}✅ {success_message}{Style.RESET_ALL}")
-            
+
     except Exception as e:
         error_message = f"Ana işlem sırasında beklenmedik bir hata oluştu: {e}"
         logger.critical(error_message)
-        print(f"{Fore.RED}❌ Hata: İşlem gerçekleştirilemedi. Detaylar için logları kontrol edin.{Style.RESET_ALL}")
+        print(
+            f"{Fore.RED}❌ Hata: İşlem gerçekleştirilemedi. Detaylar için logları kontrol edin.{Style.RESET_ALL}"
+        )
+
 
 if __name__ == "__main__":
     # İnteraktif menü yerine doğrudan komut satırı argümanlarını kullanıyoruz

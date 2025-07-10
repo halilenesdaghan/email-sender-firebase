@@ -8,8 +8,9 @@ const db = admin.firestore();
 
 // --- DEĞİŞİKLİK 1: Güvenli Konfigürasyon ---
 // Kimlik bilgileri koddan çıkarıldı. Bunları deploy ederken ayarlayacağız.
-const gmailEmail = functions.config().gmail.email;
-const gmailPassword = functions.config().gmail.password;
+const { gmail } = functions.config();
+const gmailEmail = gmail ? gmail.email : undefined;
+const gmailPassword = gmail ? gmail.password : undefined;
 
 // Nodemailer için transporter nesnesini oluştur
 const transporter = nodemailer.createTransport({
@@ -23,40 +24,38 @@ const transporter = nodemailer.createTransport({
 // --- DEĞİŞİKLİK 2: Doğru Koleksiyon Adı ---
 // Fonksiyon artık Python'un yazdığı 'email_tasks' koleksiyonunu dinliyor.
 exports.sendEmailOnTaskCreate = functions.firestore
-    .document("email_tasks/{taskId}")
-    .onCreate(async (snap, context) => {
+  .document("email_tasks/{taskId}")
+  .onCreate(async (snap, context) => {
+    try {
       const taskData = snap.data();
-      const taskId = context.params.taskId; // Görev ID'sini alıyoruz.
+      if (!taskData) {
+        throw new Error("Görev verisi tanımsız");
+      }
 
+      const { recipient, subject, body } = taskData;
       const mailOptions = {
         from: `Otomatik Servis <${gmailEmail}>`,
-        to: taskData.recipient,
-        subject: taskData.subject, // Python'dan gelen konu
-        text: taskData.body,      // Python'dan gelen içerik
+        to: recipient,
+        subject,
+        text: body,
       };
 
-      try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log("E-posta başarıyla gönderildi:", info.response);
-
-        // --- DEĞİŞİKLİK 3: Başarı Loglaması Eklendi ---
-        return db.collection("email_logs").add({
-          taskId: taskId, // Hangi göreve ait olduğu bilgisi
-          recipient: taskData.recipient,
-          status: "success",
-          sentAt: admin.firestore.FieldValue.serverTimestamp(),
-          response: info.response,
-        });
-      } catch (error) {
-        console.error("E-posta gönderiminde hata:", error);
-
-        // --- DEĞİŞİKLİK 3: Hata Loglaması Eklendi ---
-        return db.collection("email_logs").add({
-          taskId: taskId, // Hangi göreve ait olduğu bilgisi
-          recipient: taskData.recipient,
-          status: "error",
-          failedAt: admin.firestore.FieldValue.serverTimestamp(),
-          error: error.message, // Hatayı kaydet
-        });
-      }
-    });
+      const info = await transporter.sendMail(mailOptions);
+      await db.collection("email_logs").add({
+        taskId: context.params.taskId,
+        recipient,
+        status: "success",
+        sentAt: admin.firestore.FieldValue.serverTimestamp(),
+        response: info.response,
+      });
+    } catch (error) {
+      console.error("E-posta gönderiminde hata:", error);
+      await db.collection("email_logs").add({
+        taskId: context.params.taskId,
+        recipient: snap.data()?.recipient,
+        status: "error",
+        failedAt: admin.firestore.FieldValue.serverTimestamp(),
+        error: error.message,
+      });
+    }
+  });
